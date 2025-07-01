@@ -2,109 +2,75 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Attendee Home</title>
-  <link rel="stylesheet" href="/main.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Attendee Home • <%= siteSettings.name %></title>
+  <link href="/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="/icons/bootstrap-icons.css" rel="stylesheet" />
   <style>
-    .container {
-      max-width: 960px;
-      margin: 2rem auto;
-      padding: 0 1rem;
-    }
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1.5rem;
-    }
-    .card {
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
-    .card-header {
-      background: #f7f7f7;
-      padding: 1rem;
-    }
-    .card-header h3 {
-      margin: 0;
-      font-size: 1.25rem;
-    }
-    .card-body {
-      flex: 1;
-      padding: 1rem;
-    }
-    .card-body p {
-      margin: 0.5rem 0;
-    }
-    .card-footer {
-      padding: 1rem;
-      text-align: right;
-      background: #fafafa;
-    }
-    .btn {
-      display: inline-block;
-      padding: 0.5rem 1rem;
-      background: #007bff;
-      color: #fff;
-      text-decoration: none;
-      border-radius: 4px;
-      font-size: 0.9rem;
-    }
-    .sold-out {
-      color: #c00;
-      font-weight: bold;
-      font-size: 0.9rem;
-    }
+    body { background: #f0f2f5; }
+    .hero-card { border-top: 4px solid #764ba2; border-radius: .75rem; box-shadow: 0 .25rem .75rem rgba(0,0,0,0.1); }
+    .ticket-card { border: none; border-top: 4px solid #667eea; border-radius: .75rem; }
+    .ticket-info { font-size: .9rem; }
+    .sold-out { color: #c00; font-weight: bold; }
   </style>
 </head>
 <body>
+  <!-- Navbar -->
+  <%- include('partials/header', { siteSettings }) %>
+
   <%  
-    // Helper to format YYYY-MM-DD → DD/MM/YYYY  
+    // Helper to format YYYY-MM-DD → DD/MM/YYYY
     function formatDate(iso) {
+      if (!iso) return '';
       const [y, m, d] = iso.split('-');
       return `${d}/${m}/${y}`;
     }
   %>
 
-  <header style="text-align:center; margin-top:2rem;">
-    <h1><%= siteSettings.name %></h1>
-    <p><%= siteSettings.description %></p>
-  </header>
+  <main class="container my-5">
+    <!-- Hero Section -->
+    <div class="card hero-card text-center p-5 mb-5 bg-gradient" style="background: linear-gradient(135deg,#764ba2,#667eea); color:#fff;">
+      <i class="bi bi-people-fill display-4 mb-3"></i>
+      <h1 class="display-5 fw-bold">Welcome, Guests!</h1>
+      <p class="lead">Browse upcoming events and book your spot now.</p>
+    </div>
 
-  <main class="container">
-    <h2>Upcoming Events</h2>
-    <div class="cards">
+    <!-- Events List -->
+    <div class="row g-4">
       <% if (events.length === 0) { %>
-        <p>No events currently available.</p>
-      <% } %>
-
-      <% events.forEach(ev => { 
-           const fullRem = ev.full_remaining;
-           const concRem = ev.conc_remaining;
-           const remaining = fullRem + concRem;
-      %>
-        <div class="card">
-          <div class="card-header">
-            <h3><%= ev.title %></h3>
-            <small><%= formatDate(ev.date) %></small>
-          </div>
-          <div class="card-body">
-            <p><strong>Full-price:</strong> $<%= ev.price_full.toFixed(2) %> (Left: <%= fullRem %>)</p>
-            <p><strong>Concession:</strong> $<%= ev.price_concession.toFixed(2) %> (Left: <%= concRem %>)</p>
-          </div>
-          <div class="card-footer">
-            <% if (remaining <= 0) { %>
-              <span class="sold-out">Sold Out</span>
-            <% } else { %>
-              <a href="/attendee/events/<%= ev.id %>" class="btn">View Details</a>
-            <% } %>
+        <div class="col-12">
+          <div class="alert alert-info text-center" role="alert">
+            No events currently available.
           </div>
         </div>
-      <% }) %>
+      <% } else { %>
+        <% events.forEach(ev => { %>
+          <div class="col-md-4">
+            <div class="card ticket-card shadow-sm h-100">
+              <div class="card-body d-flex flex-column">
+                <h5 class="card-title"><%= ev.title %></h5>
+                <p class="card-text ticket-info mb-2">
+                  <i class="bi bi-calendar-event me-1"></i><%= formatDate(ev.date) %>
+                </p>
+                <p class="ticket-info mb-2">
+                  <strong>Full-price:</strong> $<%= ev.price_full.toFixed(2) %> (<%= ev.full_remaining %> left)<br/>
+                  <strong>Concession:</strong> $<%= ev.price_concession.toFixed(2) %> (<%= ev.conc_remaining %> left)
+                </p>
+                <div class="mt-auto text-center">
+                  <% if (ev.full_remaining + ev.conc_remaining <= 0) { %>
+                    <span class="sold-out">Sold Out</span>
+                  <% } else { %>
+                    <a href="/attendee/events/<%= ev.id %>" class="btn btn-primary btn-sm">View Details</a>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% }) %>
+      <% } %>
     </div>
   </main>
+
+  <script src="/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

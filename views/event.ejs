@@ -2,174 +2,92 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title><%= event.title %></title>
-  <link rel="stylesheet" href="/main.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title><%= event.title %> • Event Details</title>
+  <link href="/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="/icons/bootstrap-icons.css" rel="stylesheet" />
   <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background-color: #f0f2f5;
-      font-family: Arial, sans-serif;
-    }
-    .container {
-      max-width: 700px;
-      margin: 2rem auto;
-      background: #fff;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      overflow: hidden;
-    }
-    .header {
-      background: #007bff;
-      color: #fff;
-      padding: 1.5rem;
-      text-align: center;
-    }
-    .header h1 {
-      margin: 0;
-      font-size: 1.75rem;
-    }
-    .header p {
-      margin: 0.5rem 0 0;
-      font-size: 1rem;
-    }
-    .section {
-      padding: 1.5rem;
-    }
-    .section h2 {
-      margin-top: 0;
-      font-size: 1.25rem;
-      border-bottom: 1px solid #eee;
-      padding-bottom: 0.5rem;
-    }
-    .section p {
-      margin: 0.75rem 0;
-      color: #333;
-    }
-    .ticket-info {
-      display: flex;
-      justify-content: space-between;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
-    .ticket-info .info {
-      flex: 1;
-      min-width: 150px;
-    }
-    .ticket-info .info strong {
-      display: block;
-      margin-bottom: 0.25rem;
-    }
-    .booking {
-      text-align: center;
-      padding: 1.5rem;
-      background: #fafafa;
-      border-top: 1px solid #eee;
-    }
-    .booking form {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 1rem;
-      max-width: 400px;
-      margin: 0 auto;
-    }
-    .booking label {
-      display: flex;
-      flex-direction: column;
-      font-size: 0.95rem;
-      color: #555;
-    }
-    .booking input {
-      padding: 0.5rem;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      font-size: 1rem;
-    }
-    .btn {
-      display: inline-block;
-      padding: 0.75rem 1.5rem;
-      background-color: #007bff;
-      color: #fff;
-      text-decoration: none;
-      border: none;
-      border-radius: 4px;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: background-color 0.2s;
-    }
-    .btn:hover {
-      background-color: #0056b3;
-    }
-    .sold-out {
-      color: #c00;
-      font-size: 1.1rem;
-      font-weight: bold;
-      text-align: center;
-    }
-    .back-link {
-      display: inline-block;
-      margin: 1rem;
-      color: #007bff;
-      text-decoration: none;
-    }
+    body { background: #f0f2f5; }
+    .card { border-top: 4px solid #667eea; border-radius: .75rem; box-shadow: 0 .25rem .75rem rgba(0,0,0,0.1); }
+    .header-bg { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; }
+    .btn-back { margin: 1rem 0; }
+    .ticket-info .col { margin-bottom: 1rem; }
   </style>
 </head>
 <body>
+  <!-- Navbar -->
+  <%- include('partials/header', { siteSettings }) %>
+
   <%  
     // Helper to format YYYY-MM-DD → DD/MM/YYYY
     function formatDate(iso) {
+      if (!iso) return '';
       const [y, m, d] = iso.split('-');
       return `${d}/${m}/${y}`;
     }
   %>
 
-  <div class="container">
-    <div class="header">
-      <h1><%= event.title %></h1>
-      <p><%= event.description %></p>
-      <p><strong>Date:</strong> <%= formatDate(event.date) %></p>
-    </div>
+  <main class="container my-5">
+    <!-- Back link -->
+    <a href="/attendee" class="btn btn-outline-secondary btn-back">
+      <i class="bi bi-arrow-left-circle me-1"></i>Back to Events
+    </a>
 
-    <div class="section">
-      <h2>Ticket Prices & Availability</h2>
-      <div class="ticket-info">
-        <div class="info">
-          <strong>Full-price</strong>
-          Price: $<%= event.price_full.toFixed(2) %><br/>Remaining: <%= event.full_remaining %>
+    <!-- Event card -->
+    <div class="card">
+      <div class="card-header header-bg text-center p-4">
+        <h2 class="mb-1"><%= event.title %></h2>
+        <p class="mb-0"><%= event.description %></p>
+        <small><i class="bi bi-calendar-event me-1"></i>Date: <%= formatDate(event.date) %></small>
+      </div>
+      <div class="card-body">
+        <div class="row ticket-info">
+          <div class="col-md-6">
+            <div class="card p-3">
+              <h5><i class="bi bi-cash-coin me-1"></i>Full-price</h5>
+              <p class="mb-1">Price: $<%= event.price_full.toFixed(2) %></p>
+              <p class="mb-0">Remaining: <%= event.full_remaining %></p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card p-3">
+              <h5><i class="bi bi-toggles2 me-1"></i>Concession</h5>
+              <p class="mb-1">Price: $<%= event.price_concession.toFixed(2) %></p>
+              <p class="mb-0">Remaining: <%= event.conc_remaining %></p>
+            </div>
+          </div>
         </div>
-        <div class="info">
-          <strong>Concession</strong>
-          Price: $<%= event.price_concession.toFixed(2) %><br/>Remaining: <%= event.conc_remaining %>
+
+        <!-- Booking section -->
+        <div class="mt-4">
+          <% if (event.full_remaining + event.conc_remaining <= 0) { %>
+            <p class="text-danger fw-bold text-center">Sold Out</p>
+          <% } else { %>
+            <form action="/attendee/events/<%= event.id %>/book" method="POST" class="row g-3">
+              <div class="col-12">
+                <label class="form-label">Your Name</label>
+                <input type="text" name="attendee_name" class="form-control" required />
+              </div>
+              <div class="col-sm-6">
+                <label class="form-label">Full-price Tickets</label>
+                <input type="number" name="full_tickets" class="form-control" min="0" max="<%= event.full_remaining %>" value="0" />
+              </div>
+              <div class="col-sm-6">
+                <label class="form-label">Concession Tickets</label>
+                <input type="number" name="conc_tickets" class="form-control" min="0" max="<%= event.conc_remaining %>" value="0" />
+              </div>
+              <div class="col-12 text-center">
+                <button type="submit" class="btn btn-primary">
+                  <i class="bi bi-ticket-perforated me-1"></i>Book Tickets
+                </button>
+              </div>
+            </form>
+          <% } %>
         </div>
       </div>
     </div>
+  </main>
 
-    <div class="booking">
-      <% if (event.full_remaining + event.conc_remaining <= 0) { %>
-        <p class="sold-out">Sold Out</p>
-      <% } else { %>
-        <h2>Book Now</h2>
-        <form action="/attendee/events/<%= event.id %>/book" method="POST">
-          <label>
-            Your Name
-            <input name="attendee_name" type="text" required />
-          </label>
-          <label>
-            Full-price Tickets (max <%= event.full_remaining %>)
-            <input name="full_tickets" type="number" min="0" max="<%= event.full_remaining %>" value="0" />
-          </label>
-          <label>
-            Concession Tickets (max <%= event.conc_remaining %>)
-            <input name="conc_tickets" type="number" min="0" max="<%= event.conc_remaining %>" value="0" />
-          </label>
-          <button type="submit" class="btn">Book Tickets</button>
-        </form>
-      <% } %>
-    </div>
-  </div>
-
-  <a href="/attendee" class="back-link">&larr; Back to events list</a>
+  <script src="/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

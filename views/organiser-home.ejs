@@ -1,78 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Organiser Dashboard</title>
-  <link rel="stylesheet" href="/main.css" />
+  <link href="/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="/icons/bootstrap-icons.css" rel="stylesheet"/>
   <style>
-    .container {
-      max-width: 960px;
-      margin: 2rem auto;
-      padding: 0 1rem;
-    }
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 1.5rem;
-    }
-    .card {
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-    .card-header {
-      background: #f7f7f7;
-      padding: 1rem;
-    }
-    .card-header h3 {
-      margin: 0;
-      font-size: 1.25rem;
-    }
-    .card-header small {
-      color: #555;
-    }
-    .card-body {
-      flex: 1;
-      padding: 1rem;
-    }
-    .card-body p {
-      margin: 0.5rem 0;
-    }
-    .card-footer {
-      padding: 1rem;
-      text-align: right;
-      background: #fafafa;
-    }
-    .btn {
-      display: inline-block;
-      padding: 0.5rem 1rem;
-      background: #007bff;
-      color: #fff;
-      text-decoration: none;
-      border-radius: 4px;
-      font-size: 0.9rem;
-      margin-left: 0.5rem;
-    }
-    .sold-out {
-      color: #c00;
-      font-weight: bold;
-      font-size: 0.9rem;
-      margin-right: 1rem;
-    }
+    .card { border-top:4px solid #667eea; border-radius:.75rem; }
   </style>
 </head>
-<body>
+<body class="bg-light">
+  <!-- Header -->
+  <%- include('partials/header', { siteSettings }) %>
+
   <%  
-    // Helpers for formatting
+    // Helpers for date formatting
     function formatDate(iso) {
+      if (!iso) return '';
       const [y,m,d] = iso.split('T')[0].split('-');
       return `${d}/${m}/${y}`;
     }
     function formatDateTime(iso) {
+      if (!iso) return '';
       const dt = new Date(iso);
       const d  = String(dt.getDate()).padStart(2,'0');
       const m  = String(dt.getMonth()+1).padStart(2,'0');
@@ -83,47 +33,48 @@
     }
   %>
 
-  <div class="container">
-    <header style="display:flex; justify-content:space-between; align-items:center;">
+  <main class="container my-5">
+    <!-- Action Buttons -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2>Organiser Dashboard</h2>
       <div>
-        <h1><%= siteSettings.name %></h1>
-        <p><%= siteSettings.description %></p>
+        <a href="/organiser/settings" class="btn btn-secondary me-2">
+          <i class="bi bi-gear-fill me-1"></i>Site Settings
+        </a>
+        <a href="/organiser/events/new" class="btn btn-primary">
+          <i class="bi bi-plus-circle me-1"></i>Add New Event
+        </a>
       </div>
-      <nav>
-        <a href="/organiser/settings" class="btn">Site Settings</a>
-        <a href="/organiser/events/new" class="btn">Create New Event</a>
-      </nav>
-    </header>
+    </div>
 
     <!-- Published Events -->
-    <section style="margin-top:2rem;">
-      <h2>Published Events</h2>
+    <section class="mb-5">
+      <h3>Published Events</h3>
       <% if (publishedEvents.length === 0) { %>
         <p>No published events yet.</p>
       <% } else { %>
-        <div class="cards">
+        <div class="row g-4">
           <% publishedEvents.forEach(ev => { %>
-            <div class="card">
-              <div class="card-header">
-                <h3><%= ev.title %></h3>
-                <small><%= formatDate(ev.date) %></small>
-              </div>
-              <div class="card-body">
-                <p><strong>Created:</strong> <%= formatDateTime(ev.created_at) %></p>
-                <p><strong>Published:</strong> <%= formatDateTime(ev.published_at) %></p>
-                <p><strong>Total tickets:</strong> <%= ev.total_qty %></p>
-                <p><strong>Sold:</strong> <%= ev.sold_total %>
-                   (Full: <%= ev.sold_full %>, Concession: <%= ev.sold_conc %>)</p>
-              </div>
-              <div class="card-footer">
-                <% if (ev.sold_total >= ev.total_qty) { %>
-                  <span class="sold-out">Sold Out</span>
-                <% } %>
-                <a href="/attendee/events/<%= ev.id %>" class="btn">View Attendee</a>
-                <a href="/organiser/events/<%= ev.id %>/edit" class="btn">Edit</a>
-                <form action="/organiser/events/<%= ev.id %>/delete" method="POST" style="display:inline;">
-                  <button class="btn" type="submit">Delete</button>
-                </form>
+            <div class="col-md-4">
+              <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                  <h5 class="card-title"><%= ev.title %></h5>
+                  <p class="card-text text-muted mb-2">
+                    Date: <%= formatDate(ev.date) %><br/>
+                    Created: <%= formatDateTime(ev.created_at) %><br/>
+                    Published: <%= formatDateTime(ev.published_at) %>
+                  </p>
+                  <p>
+                    <strong>Total tickets:</strong> <%= ev.total_qty %><br/>
+                    <strong>Sold:</strong> <%= ev.sold_total %>
+                  </p>
+                </div>
+                <div class="card-footer bg-transparent d-flex justify-content-between">
+                  <a href="/attendee/events/<%= ev.id %>"
+                     class="btn btn-sm btn-outline-primary">View</a>
+                  <a href="/organiser/events/<%= ev.id %>/edit"
+                     class="btn btn-sm btn-primary">Edit</a>
+                </div>
               </div>
             </div>
           <% }) %>
@@ -132,42 +83,44 @@
     </section>
 
     <!-- Draft Events -->
-    <section style="margin-top:2rem;">
-      <h2>Draft Events</h2>
+    <section>
+      <h3>Draft Events</h3>
       <% if (draftEvents.length === 0) { %>
         <p>No drafts available.</p>
       <% } else { %>
-        <div class="cards">
+        <div class="row g-4">
           <% draftEvents.forEach(ev => { %>
-            <div class="card">
-              <div class="card-header">
-                <h3><%= ev.title || 'Untitled' %></h3>
-                <small><%= formatDate(ev.date) %></small>
-              </div>
-              <div class="card-body">
-                <p><strong>Created:</strong> <%= formatDateTime(ev.created_at) %></p>
-                <p><strong>Total tickets:</strong> <%= ev.total_qty %></p>
-                <p><strong>Sold:</strong> <%= ev.sold_total %>
-                   (Full: <%= ev.sold_full %>, Concession: <%= ev.sold_conc %>)</p>
-              </div>
-              <div class="card-footer">
-                <% if (ev.sold_total >= ev.total_qty) { %>
-                  <span class="sold-out">Sold Out</span>
-                <% } %>
-                <a href="/attendee/events/<%= ev.id %>" class="btn">View Attendee</a>
-                <a href="/organiser/events/<%= ev.id %>/edit" class="btn">Edit</a>
-                <form action="/organiser/events/<%= ev.id %>/publish" method="POST" style="display:inline;">
-                  <button class="btn" type="submit">Publish</button>
-                </form>
-                <form action="/organiser/events/<%= ev.id %>/delete" method="POST" style="display:inline;">
-                  <button class="btn" type="submit">Delete</button>
-                </form>
+            <div class="col-md-4">
+              <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                  <h5 class="card-title"><%= ev.title || 'Untitled' %></h5>
+                  <p class="card-text text-muted mb-2">
+                    Date: <%= formatDate(ev.date) %><br/>
+                    Created: <%= formatDateTime(ev.created_at) %>
+                  </p>
+                  <p>
+                    <strong>Total tickets:</strong> <%= ev.total_qty %><br/>
+                    <strong>Sold:</strong> <%= ev.sold_total %>
+                  </p>
+                </div>
+                <div class="card-footer bg-transparent d-flex justify-content-between">
+                  <a href="/organiser/events/<%= ev.id %>/edit"
+                     class="btn btn-sm btn-primary">Edit</a>
+                  <form action="/organiser/events/<%= ev.id %>/publish"
+                        method="POST">
+                    <button class="btn btn-sm btn-success" type="submit">
+                      <i class="bi bi-upload me-1"></i>Publish
+                    </button>
+                  </form>
+                </div>
               </div>
             </div>
           <% }) %>
         </div>
       <% } %>
     </section>
-  </div>
+  </main>
+
+  <script src="/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

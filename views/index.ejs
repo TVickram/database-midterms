@@ -1,77 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Welcome to Event App</title>
-  <link rel="stylesheet" href="/main.css" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title><%= siteSettings.name %> • Welcome</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="/css/bootstrap.min.css" rel="stylesheet"/>
+  <!-- Bootstrap Icons -->
+  <link href="/icons/bootstrap-icons.css" rel="stylesheet"/>
+
   <style>
-    body {
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      background-color: #f0f2f5;
-      font-family: Arial, sans-serif;
+    body { font-family: 'Poppins', sans-serif; background: #f0f2f5; }
+    .hero {
+      position: relative;
+      background: url('/hero-bg.jpg') center/cover no-repeat;
+      color: #fff; padding:6rem 2rem; border-radius:1rem;
+      box-shadow:0 0.5rem 1rem rgba(0,0,0,0.15); margin:2rem auto; max-width:800px;
     }
-    .container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 2rem;
-      width: 100%;
-      max-width: 800px;
-      padding: 2rem;
-    }
-    .card {
-      background: #fff;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      padding: 2rem;
-      text-align: center;
-      transition: transform 0.2s;
-    }
-    .card:hover {
-      transform: translateY(-4px);
-    }
-    .card h2 {
-      margin-top: 0;
-      font-size: 1.5rem;
-    }
-    .card p {
-      color: #555;
-      margin: 1rem 0;
-    }
-    .btn {
-      display: inline-block;
-      margin-top: 1rem;
-      padding: 0.75rem 1.5rem;
-      background-color: #007bff;
-      color: #fff;
-      text-decoration: none;
-      border-radius: 4px;
-      font-size: 1rem;
-      transition: background-color 0.2s;
-    }
-    .btn:hover {
-      background-color: #0056b3;
-    }
+    .hero::after { content:''; position:absolute; inset:0; background:rgba(0,0,0,0.4); border-radius:1rem; }
+    .hero * { position:relative; z-index:1; }
+    .btn-portal { min-width:180px; }
+    .feature-card { border:none; border-top:.4rem solid #0062E6; border-radius:.75rem; transition:.3s; }
+    .feature-card:hover { transform:translateY(-8px); box-shadow:0 .5rem 1rem rgba(0,0,0,0.15); }
+    .feature-icon { font-size:3rem; color:#0062E6; }
   </style>
 </head>
-<body>
-  <div class="container">
-    <div class="card">
-      <h2>Organiser</h2>
-      <p>Log in to manage your events and site settings.</p>
-      <a href="/organiser" class="btn">Go to Organiser</a>
-    </div>
-    <div class="card">
-      <h2>Attendee</h2>
-      <p>Browse upcoming events and book tickets.</p>
-      <a href="/attendee" class="btn">Go to Attendee</a>
-    </div>
-  </div>
+<body class="bg-light">
+  <!-- Header -->
+  <%- include('partials/header', { siteSettings }) %>
+
+  <!-- Hero -->
+  <main class="container text-center">
+    <section class="hero">
+      <i class="bi bi-calendar-event-fill display-1 mb-3"></i>
+      <h1 class="display-4 fw-bold"><%= siteSettings.name %></h1>
+      <p class="lead mb-4"><%= siteSettings.description %></p>
+    </section>
+
+    <!-- Portal Cards -->
+    <section class="row g-4 my-5">
+      <div class="col-md-6">
+        <a href="/organiser" class="card feature-card p-4 h-100 text-center text-decoration-none text-dark">
+          <i class="bi bi-person-lock-fill feature-icon mb-3"></i>
+          <h4>Organiser Portal</h4>
+          <p class="text-muted">Log in to create, edit, and manage your events.</p>
+        </a>
+      </div>
+      <div class="col-md-6">
+        <a href="/attendee" class="card feature-card p-4 h-100 text-center text-decoration-none text-dark">
+          <i class="bi bi-people-fill feature-icon mb-3"></i>
+          <h4>Attendee Portal</h4>
+          <p class="text-muted">Browse events and book tickets seamlessly.</p>
+        </a>
+      </div>
+    </section>
+
+    <!-- Features -->
+    <section class="row g-4 mb-5">
+      <div class="col-md-4">
+        <div class="card feature-card text-center p-4 h-100">
+          <i class="bi bi-calendar-plus-fill feature-icon mb-3"></i>
+          <h5>Create &amp; Manage Events</h5>
+          <p class="text-muted">Organisers can handle all aspects of their events.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card feature-card text-center p-4 h-100">
+          <i class="bi bi-ticket-perforated feature-icon mb-3"></i>
+          <h5>Book Tickets</h5>
+          <p class="text-muted">Attendees can reserve spots with ease.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card feature-card text-center p-4 h-100">
+          <i class="bi bi-people-check feature-icon mb-3"></i>
+          <h5>Track Attendees</h5>
+          <p class="text-muted">Get real-time insights on attendee lists.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Bootstrap JS -->
+  <script src="/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
