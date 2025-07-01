@@ -3,21 +3,23 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Organiser Edit Event</title>
+  <title>Organiser Edit Event Page</title>
   <link rel="stylesheet" href="/main.css" />
 </head>
 <body>
   <%  
-    // Helper: format an ISO timestamp → DD/MM/YYYY HH:MM
+    // Helper: format ISO timestamp → DD/MM/YYYY HH:MM
     function formatDateTime(iso) {
       const dt = new Date(iso);
       const y  = dt.getFullYear();
-      const m  = String(dt.getMonth()+1).padStart(2, '0');
-      const d  = String(dt.getDate()).padStart(2, '0');
-      const hh = String(dt.getHours()).padStart(2, '0');
-      const mm = String(dt.getMinutes()).padStart(2, '0');
+      const m  = String(dt.getMonth()+1).padStart(2,'0');
+      const d  = String(dt.getDate()).padStart(2,'0');
+      const hh = String(dt.getHours()).padStart(2,'0');
+      const mm = String(dt.getMinutes()).padStart(2,'0');
       return `${d}/${m}/${y} ${hh}:${mm}`;
     }
+    // Today's date for the date picker
+    const today = new Date().toISOString().split('T')[0];
   %>
 
   <h1>Organiser Edit Event Page</h1>
@@ -26,13 +28,10 @@
     <p><strong>Created on:</strong> <%= formatDateTime(event.created_at) %></p>
   <% } %>
 
-  <form action="/organiser/events/<%= event.id %>/edit" method="POST">
-
+  <form action="<%= event.id ? ('/organiser/events/' + event.id + '/edit') : '/organiser/events/new' %>" method="POST">
     <!-- Title -->
     <div style="margin-bottom:1rem;">
-      <label for="title" style="font-weight:bold; display:block; margin-bottom:0.5rem;">
-        Title
-      </label>
+      <label for="title" style="font-weight:bold; display:block; margin-bottom:0.5rem;">Title</label>
       <input
         id="title"
         name="title"
@@ -45,9 +44,7 @@
 
     <!-- Description -->
     <div style="margin-bottom:1rem;">
-      <label for="description" style="font-weight:bold; display:block; margin-bottom:0.5rem;">
-        Description
-      </label>
+      <label for="description" style="font-weight:bold; display:block; margin-bottom:0.5rem;">Description</label>
       <textarea
         id="description"
         name="description"
@@ -57,17 +54,15 @@
       ><%= event.description %></textarea>
     </div>
 
-    <!-- Event Date -->
+    <!-- Event Date Picker -->
     <div style="margin-bottom:1.5rem;">
-      <label for="event_date" style="font-weight:bold; display:block; margin-bottom:0.5rem;">
-        Event Date (DD/MM/YYYY)
-      </label>
+      <label for="event_date" style="font-weight:bold; display:block; margin-bottom:0.5rem;">Event Date (DD/MM/YYYY)</label>
       <input
         id="event_date"
         name="event_date"
         type="date"
         value="<%= event.date %>"
-        min="<%= new Date().toISOString().split('T')[0] %>"
+        min="<%= today %>"
         required
         style="margin-left:1rem;"
       />
@@ -75,14 +70,10 @@
 
     <!-- Full-price Tickets -->
     <div style="margin-bottom:1.5rem;">
-      <label style="font-weight:bold; display:block; margin-bottom:0.5rem;">
-        Full-price Tickets
-      </label>
+      <label style="font-weight:bold; display:block; margin-bottom:0.5rem;">Full-price Tickets</label>
       <div style="display:flex; gap:1rem; margin-left:1rem;">
         <div>
-          <label for="full_qty" style="display:block; margin-bottom:0.25rem;">
-            Quantity
-          </label>
+          <label for="full_qty" style="display:block; margin-bottom:0.25rem;">Quantity</label><br/>
           <input
             id="full_qty"
             name="full_qty"
@@ -94,9 +85,7 @@
           />
         </div>
         <div>
-          <label for="full_price" style="display:block; margin-bottom:0.25rem;">
-            Price Each
-          </label>
+          <label for="full_price" style="display:block; margin-bottom:0.25rem;">Price Each</label><br/>
           <input
             id="full_price"
             name="full_price"
@@ -113,14 +102,10 @@
 
     <!-- Concession Tickets -->
     <div style="margin-bottom:1.5rem;">
-      <label style="font-weight:bold; display:block; margin-bottom:0.5rem;">
-        Concession Tickets
-      </label>
+      <label style="font-weight:bold; display:block; margin-bottom:0.5rem;">Concession Tickets</label>
       <div style="display:flex; gap:1rem; margin-left:1rem;">
         <div>
-          <label for="conc_qty" style="display:block; margin-bottom:0.25rem;">
-            Quantity
-          </label>
+          <label for="conc_qty" style="display:block; margin-bottom:0.25rem;">Quantity</label><br/>
           <input
             id="conc_qty"
             name="conc_qty"
@@ -132,9 +117,7 @@
           />
         </div>
         <div>
-          <label for="conc_price" style="display:block; margin-bottom:0.25rem;">
-            Price Each
-          </label>
+          <label for="conc_price" style="display:block; margin-bottom:0.25rem;">Price Each</label><br/>
           <input
             id="conc_price"
             name="conc_price"
@@ -149,7 +132,6 @@
       </div>
     </div>
 
-    <!-- Submit -->
     <button type="submit">Save Event</button>
   </form>
 

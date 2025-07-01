@@ -15,13 +15,12 @@
     }
     function formatDateTime(iso) {
       const dt = new Date(iso);
-      return [
-        String(dt.getDate()).padStart(2,'0'),
-        String(dt.getMonth()+1).padStart(2,'0'),
-        dt.getFullYear()
-      ].join('/') + ' ' +
-      [dt.getHours(), dt.getMinutes()]
-        .map(n=>String(n).padStart(2,'0')).join(':');
+      const d  = String(dt.getDate()).padStart(2,'0');
+      const m  = String(dt.getMonth()+1).padStart(2,'0');
+      const y  = dt.getFullYear();
+      const hh = String(dt.getHours()).padStart(2,'0');
+      const mm = String(dt.getMinutes()).padStart(2,'0');
+      return `${d}/${m}/${y} ${hh}:${mm}`;
     }
   %>
 
@@ -31,9 +30,8 @@
     <p><%= siteSettings.description %></p>
     <nav>
       <a href="/organiser/settings">Site Settings</a>
-      <form action="/organiser/events/new" method="POST" style="display:inline; margin-left:1rem;">
-        <button type="submit">Create New Event</button>
-      </form>
+      <!-- now GETs the blank form -->
+      <a href="/organiser/events/new" style="margin-left:1rem;">Create New Event</a>
     </nav>
   </header>
 
@@ -48,10 +46,8 @@
           <p><strong>Created On:</strong> <%= formatDateTime(ev.created_at) %></p>
           <p><strong>Published On:</strong> <%= formatDateTime(ev.published_at) %></p>
           <p><strong>Total tickets:</strong> <%= ev.total_qty %></p>
-          <p>
-            <strong>Sold:</strong> <%= ev.sold_total %>
-            (Full: <%= ev.sold_full %>, Concession: <%= ev.sold_conc %>)
-          </p>
+          <p><strong>Sold:</strong> <%= ev.sold_total %>
+             (Full: <%= ev.sold_full %>, Concession: <%= ev.sold_conc %>)</p>
           <form action="/attendee/events/<%= ev.id %>" method="GET" style="display:inline; margin-right:1rem;">
             <button type="submit">View as Attendee</button>
           </form>
@@ -77,10 +73,8 @@
           <p><strong>Event Date:</strong> <%= formatDate(ev.date) %></p>
           <p><strong>Created On:</strong> <%= formatDateTime(ev.created_at) %></p>
           <p><strong>Total tickets:</strong> <%= ev.total_qty %></p>
-          <p>
-            <strong>Sold:</strong> <%= ev.sold_total %>
-            (Full: <%= ev.sold_full %>, Concession: <%= ev.sold_conc %>)
-          </p>
+          <p><strong>Sold:</strong> <%= ev.sold_total %>
+             (Full: <%= ev.sold_full %>, Concession: <%= ev.sold_conc %>)</p>
           <form action="/attendee/events/<%= ev.id %>" method="GET" style="display:inline; margin-right:1rem;">
             <button type="submit">View as Attendee</button>
           </form>
