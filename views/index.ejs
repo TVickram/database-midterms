@@ -2,16 +2,76 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Welcome</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Welcome to Event App</title>
   <link rel="stylesheet" href="/main.css" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #f0f2f5;
+      font-family: Arial, sans-serif;
+    }
+    .container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+      width: 100%;
+      max-width: 800px;
+      padding: 2rem;
+    }
+    .card {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      padding: 2rem;
+      text-align: center;
+      transition: transform 0.2s;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+    }
+    .card h2 {
+      margin-top: 0;
+      font-size: 1.5rem;
+    }
+    .card p {
+      color: #555;
+      margin: 1rem 0;
+    }
+    .btn {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 0.75rem 1.5rem;
+      background-color: #007bff;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      transition: background-color 0.2s;
+    }
+    .btn:hover {
+      background-color: #0056b3;
+    }
+  </style>
 </head>
-<body style="text-align:center; padding-top:4rem;">
-  <h1>Welcome to <%= siteSettings ? siteSettings.name : 'Our Event App' %></h1>
-  <p><%= siteSettings ? siteSettings.description : '' %></p>
-  <div style="margin-top:2rem; font-size:1.25rem;">
-    <a href="/organiser" style="margin-right:2rem;">Organiser</a>
-    <a href="/attendee">Attendee</a>
+<body>
+  <div class="container">
+    <div class="card">
+      <h2>Organiser</h2>
+      <p>Log in to manage your events and site settings.</p>
+      <a href="/organiser" class="btn">Go to Organiser</a>
+    </div>
+    <div class="card">
+      <h2>Attendee</h2>
+      <p>Browse upcoming events and book tickets.</p>
+      <a href="/attendee" class="btn">Go to Attendee</a>
+    </div>
   </div>
 </body>
 </html>

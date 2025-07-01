@@ -5,6 +5,65 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Organiser Dashboard</title>
   <link rel="stylesheet" href="/main.css" />
+  <style>
+    .container {
+      max-width: 960px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+    .card {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .card-header {
+      background: #f7f7f7;
+      padding: 1rem;
+    }
+    .card-header h3 {
+      margin: 0;
+      font-size: 1.25rem;
+    }
+    .card-header small {
+      color: #555;
+    }
+    .card-body {
+      flex: 1;
+      padding: 1rem;
+    }
+    .card-body p {
+      margin: 0.5rem 0;
+    }
+    .card-footer {
+      padding: 1rem;
+      text-align: right;
+      background: #fafafa;
+    }
+    .btn {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      background: #007bff;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      margin-left: 0.5rem;
+    }
+    .sold-out {
+      color: #c00;
+      font-weight: bold;
+      font-size: 0.9rem;
+      margin-right: 1rem;
+    }
+  </style>
 </head>
 <body>
   <%  
@@ -14,7 +73,6 @@
       return `${d}/${m}/${y}`;
     }
     function formatDateTime(iso) {
-      if (!iso) return '';
       const dt = new Date(iso);
       const d  = String(dt.getDate()).padStart(2,'0');
       const m  = String(dt.getMonth()+1).padStart(2,'0');
@@ -25,82 +83,91 @@
     }
   %>
 
-  <!-- Header -->
-  <header>
-    <h1><%= siteSettings.name %></h1>
-    <p><%= siteSettings.description %></p>
-    <nav>
-      <a href="/organiser/settings">Site Settings</a>
-      <a href="/organiser/events/new" style="margin-left:1rem;">Create New Event</a>
-    </nav>
-  </header>
+  <div class="container">
+    <header style="display:flex; justify-content:space-between; align-items:center;">
+      <div>
+        <h1><%= siteSettings.name %></h1>
+        <p><%= siteSettings.description %></p>
+      </div>
+      <nav>
+        <a href="/organiser/settings" class="btn">Site Settings</a>
+        <a href="/organiser/events/new" class="btn">Create New Event</a>
+      </nav>
+    </header>
 
-  <!-- Published Events -->
-  <section>
-    <h2>Published Events</h2>
-    <ul>
-      <% publishedEvents.forEach(ev => { %>
-        <li>
-          <h3><%= ev.title %></h3>
-          <p><strong>Event Date:</strong> <%= formatDate(ev.date) %></p>
-          <p><strong>Created On:</strong> <%= formatDateTime(ev.created_at) %></p>
-          <p><strong>Published On:</strong> <%= formatDateTime(ev.published_at) %></p>
-          <p><strong>Total tickets:</strong> <%= ev.total_qty %></p>
-          <p>
-            <strong>Sold:</strong> <%= ev.sold_total %> 
-            (Full: <%= ev.sold_full %>, Concession: <%= ev.sold_conc %>)
-            <% if (ev.sold_total >= ev.total_qty) { %>
-              <span style="color:red; margin-left:1rem;">Sold Out</span>
-            <% } %>
-          </p>
-          <form action="/attendee/events/<%= ev.id %>" method="GET" style="display:inline; margin-right:1rem;">
-            <button type="submit">View as Attendee</button>
-          </form>
-          <a href="/organiser/events/<%= ev.id %>/edit" style="margin-right:1rem;">Edit</a>
-          <form action="/organiser/events/<%= ev.id %>/delete" method="POST" style="display:inline;">
-            <button type="submit">Delete</button>
-          </form>
-        </li>
-      <% }) %>
+    <!-- Published Events -->
+    <section style="margin-top:2rem;">
+      <h2>Published Events</h2>
       <% if (publishedEvents.length === 0) { %>
-        <li>No published events yet.</li>
+        <p>No published events yet.</p>
+      <% } else { %>
+        <div class="cards">
+          <% publishedEvents.forEach(ev => { %>
+            <div class="card">
+              <div class="card-header">
+                <h3><%= ev.title %></h3>
+                <small><%= formatDate(ev.date) %></small>
+              </div>
+              <div class="card-body">
+                <p><strong>Created:</strong> <%= formatDateTime(ev.created_at) %></p>
+                <p><strong>Published:</strong> <%= formatDateTime(ev.published_at) %></p>
+                <p><strong>Total tickets:</strong> <%= ev.total_qty %></p>
+                <p><strong>Sold:</strong> <%= ev.sold_total %>
+                   (Full: <%= ev.sold_full %>, Concession: <%= ev.sold_conc %>)</p>
+              </div>
+              <div class="card-footer">
+                <% if (ev.sold_total >= ev.total_qty) { %>
+                  <span class="sold-out">Sold Out</span>
+                <% } %>
+                <a href="/attendee/events/<%= ev.id %>" class="btn">View Attendee</a>
+                <a href="/organiser/events/<%= ev.id %>/edit" class="btn">Edit</a>
+                <form action="/organiser/events/<%= ev.id %>/delete" method="POST" style="display:inline;">
+                  <button class="btn" type="submit">Delete</button>
+                </form>
+              </div>
+            </div>
+          <% }) %>
+        </div>
       <% } %>
-    </ul>
-  </section>
+    </section>
 
-  <!-- Draft Events -->
-  <section>
-    <h2>Draft Events</h2>
-    <ul>
-      <% draftEvents.forEach(ev => { %>
-        <li>
-          <h3><%= ev.title || 'Untitled' %></h3>
-          <p><strong>Event Date:</strong> <%= formatDate(ev.date) %></p>
-          <p><strong>Created On:</strong> <%= formatDateTime(ev.created_at) %></p>
-          <p><strong>Total tickets:</strong> <%= ev.total_qty %></p>
-          <p>
-            <strong>Sold:</strong> <%= ev.sold_total %> 
-            (Full: <%= ev.sold_full %>, Concession: <%= ev.sold_conc %>)
-            <% if (ev.sold_total >= ev.total_qty) { %>
-              <span style="color:red; margin-left:1rem;">Sold Out</span>
-            <% } %>
-          </p>
-          <form action="/attendee/events/<%= ev.id %>" method="GET" style="display:inline; margin-right:1rem;">
-            <button type="submit">View as Attendee</button>
-          </form>
-          <a href="/organiser/events/<%= ev.id %>/edit" style="margin-right:1rem;">Edit</a>
-          <form action="/organiser/events/<%= ev.id %>/publish" method="POST" style="display:inline; margin-right:1rem;">
-            <button type="submit">Publish</button>
-          </form>
-          <form action="/organiser/events/<%= ev.id %>/delete" method="POST" style="display:inline;">
-            <button type="submit">Delete</button>
-          </form>
-        </li>
-      <% }) %>
+    <!-- Draft Events -->
+    <section style="margin-top:2rem;">
+      <h2>Draft Events</h2>
       <% if (draftEvents.length === 0) { %>
-        <li>No drafts available.</li>
+        <p>No drafts available.</p>
+      <% } else { %>
+        <div class="cards">
+          <% draftEvents.forEach(ev => { %>
+            <div class="card">
+              <div class="card-header">
+                <h3><%= ev.title || 'Untitled' %></h3>
+                <small><%= formatDate(ev.date) %></small>
+              </div>
+              <div class="card-body">
+                <p><strong>Created:</strong> <%= formatDateTime(ev.created_at) %></p>
+                <p><strong>Total tickets:</strong> <%= ev.total_qty %></p>
+                <p><strong>Sold:</strong> <%= ev.sold_total %>
+                   (Full: <%= ev.sold_full %>, Concession: <%= ev.sold_conc %>)</p>
+              </div>
+              <div class="card-footer">
+                <% if (ev.sold_total >= ev.total_qty) { %>
+                  <span class="sold-out">Sold Out</span>
+                <% } %>
+                <a href="/attendee/events/<%= ev.id %>" class="btn">View Attendee</a>
+                <a href="/organiser/events/<%= ev.id %>/edit" class="btn">Edit</a>
+                <form action="/organiser/events/<%= ev.id %>/publish" method="POST" style="display:inline;">
+                  <button class="btn" type="submit">Publish</button>
+                </form>
+                <form action="/organiser/events/<%= ev.id %>/delete" method="POST" style="display:inline;">
+                  <button class="btn" type="submit">Delete</button>
+                </form>
+              </div>
+            </div>
+          <% }) %>
+        </div>
       <% } %>
-    </ul>
-  </section>
+    </section>
+  </div>
 </body>
 </html>
