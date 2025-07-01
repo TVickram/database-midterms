@@ -35,23 +35,27 @@
 
   <section>
     <h2>Book Now</h2>
-    <form action="/attendee/events/<%= event.id %>/book" method="POST">
-      <label>Your Name:<br/>
-        <input name="attendee_name" required />
-      </label><br/>
+    <% if (event.full_remaining + event.conc_remaining <= 0) { %>
+      <p style="color:red; font-weight:bold;">Sold Out</p>
+    <% } else { %>
+      <form action="/attendee/events/<%= event.id %>/book" method="POST">
+        <label>Your Name:<br/>
+          <input name="attendee_name" required />
+        </label><br/>
 
-      <label>Full-price tickets (max <%= event.full_remaining %>):<br/>
-        <input name="full_tickets" type="number" min="0"
-               max="<%= event.full_remaining %>" value="0" />
-      </label><br/>
+        <label>Full-price tickets (max <%= event.full_remaining %>):<br/>
+          <input name="full_tickets" type="number" min="0"
+                 max="<%= event.full_remaining %>" value="0" />
+        </label><br/>
 
-      <label>Concession tickets (max <%= event.conc_remaining %>):<br/>
-        <input name="conc_tickets" type="number" min="0"
-               max="<%= event.conc_remaining %>" value="0" />
-      </label><br/>
+        <label>Concession tickets (max <%= event.conc_remaining %>):<br/>
+          <input name="conc_tickets" type="number" min="0"
+                 max="<%= event.conc_remaining %>" value="0" />
+        </label><br/>
 
-      <button type="submit">Book Tickets</button>
-    </form>
+        <button type="submit">Book Tickets</button>
+      </form>
+    <% } %>
   </section>
 
   <p><a href="/attendee">← Back to events list</a></p>

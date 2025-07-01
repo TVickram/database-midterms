@@ -25,11 +25,19 @@
     <% if (events.length === 0) { %>
       <li>No events currently available.</li>
     <% } %>
-    <% events.forEach(ev => { %>
+    <% events.forEach(ev => { 
+         const remaining = ev.full_remaining + ev.conc_remaining;
+    %>
       <li>
-        <a href="/attendee/events/<%= ev.id %>">
+        <% if (remaining <= 0) { %>
           <strong><%= ev.title %></strong> — <%= formatDate(ev.date) %>
-        </a><br/>
+          <span style="color:red; margin-left:1rem;">(Sold Out)</span><br/>
+        <% } else { %>
+          <a href="/attendee/events/<%= ev.id %>">
+            <strong><%= ev.title %></strong> — <%= formatDate(ev.date) %>
+          </a><br/>
+        <% } %>
+
         Full-price: $<%= ev.price_full.toFixed(2) %>, Left: <%= ev.full_remaining %><br/>
         Concession: $<%= ev.price_concession.toFixed(2) %>, Left: <%= ev.conc_remaining %>
       </li>

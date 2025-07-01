@@ -1,62 +1,72 @@
 // index.js
-// Main entry point for the Event Manager application
+const express         = require('express');
+const path            = require('path');
+const session         = require('express-session');
+const sqlite3         = require('sqlite3').verbose();
 
-// 1. Load core dependencies
-const express = require('express');             // Fast, unopinionated web framework
-const path    = require('path');                // Utilities for working with file and directory paths
-const sqlite3 = require('sqlite3').verbose();   // SQLite driver with verbose debugging output
+const authRoutes      = require('./routes/auth');
+const organiserRoutes = require('./routes/organiser');
+const attendeeRoutes  = require('./routes/attendee');
 
-// 2. Create & configure the Express application
-const app  = express();
-const port = process.env.PORT || 3000;
+const app = express();
 
-// 3. Middleware setup
-app.use(express.urlencoded({ extended: false })); // Parse URL-encoded request bodies (HTML forms)
-app.use(express.json());                          // Parse JSON request bodies
-
-// 4. View engine configuration
-app.set('views', path.join(__dirname, 'views'));  // Directory for EJS templates
-app.set('view engine', 'ejs');                    // Use EJS as templating language
-
-// 5. Static assets
-app.use(express.static(path.join(__dirname, 'public'))); // Serve CSS, JS, images from /public
-
-// 6. Initialize SQLite database connection
-global.db = new sqlite3.Database(
-  path.join(__dirname, 'database.db'), // Path to your SQLite file
-  (err) => {
-    if (err) {
-      console.error('❌ Failed to connect to database:', err.message);
-      process.exit(1); // Terminate the app if DB connection fails
-    }
-    console.log('✅ Connected to SQLite database');
+// 1) Open SQLite database
+const dbFile = path.join(__dirname, 'database.db');
+global.db = new sqlite3.Database(dbFile, err => {
+  if (err) {
+    console.error('❌ Could not open database:', err);
+    process.exit(1);
   }
-);
-
-// 7. Route handlers
-const indexRoutes     = require('./routes/index');     // GET /
-const usersRoutes     = require('./routes/users');     // GET /users/*
-const organiserRoutes = require('./routes/organiser'); // GET/POST /organiser/*
-const attendeeRoutes  = require('./routes/attendee');  // GET /attendee/*
-
-// 8. Mount routes on their respective base paths
-app.use('/',       indexRoutes);
-app.use('/users',  usersRoutes);
-app.use('/organiser', organiserRoutes);
-app.use('/attendee',  attendeeRoutes);
-
-// 9. 404 handler — catch-all for unknown routes
-app.use((req, res) => {
-  res.status(404).send('🚧 Page not found');
+  console.log('✅ Connected to SQLite DB at', dbFile);
 });
 
-// 10. Global error handler — logs and returns 500
+// 2) Middleware
+app.use(express.urlencoded({ extended: false }));           // form parsing
+app.use(express.static(path.join(__dirname)));               // serve main.css, etc.
+app.use(session({                                           // session for login
+  secret: 'REPLACE_WITH_A_SECURE_SECRET',
+  resave: false,
+  saveUninitialized: false
+}));
+
+// 3) View engine
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
+
+// 4) Auth routes (/login, /logout)
+app.use('/', authRoutes);
+
+// 5) Protect organiser routes
+function ensureAuth(req, res, next) {
+  if (req.session.user) return next();
+  res.redirect('/login');
+}
+app.use('/organiser', ensureAuth, organiserRoutes);
+
+// 6) Attendee routes (public)
+app.use('/attendee', attendeeRoutes);
+
+// 7) Landing page with links to Organiser & Attendee
+app.get('/', (req, res) => {
+  global.db.get(
+    `SELECT site_name AS name, site_description AS description
+       FROM site_settings LIMIT 1`,
+    (err, siteSettings) => {
+      if (err) return res.status(500).send('Internal Server Error');
+      res.render('index', { siteSettings });
+    }
+  );
+});
+
+// 8) 404 & error handlers
+app.use((req, res) => res.status(404).send('🚧 Page not found'));
 app.use((err, req, res, next) => {
-  console.error('🔥 Server error:', err.stack);
+  console.error(err.stack);
   res.status(500).send('💥 Internal Server Error');
 });
 
-// 11. Start the HTTP server
-app.listen(port, () => {
-  console.log(`🚀 Event Manager app listening at http://localhost:${port}`);
+// 9) Start server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`🚀 Server listening on http://localhost:${PORT}`);
 });
