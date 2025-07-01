@@ -8,20 +8,26 @@
 </head>
 <body>
   <%  
-    // Helper: format YYYY-MM-DD → DD/MM/YYYY  
-    function formatDate(iso) {
-      const [y,m,d] = iso.split('-');
-      return `${d}/${m}/${y}`;
+    // Helper: format an ISO timestamp → DD/MM/YYYY HH:MM
+    function formatDateTime(iso) {
+      const dt = new Date(iso);
+      const y  = dt.getFullYear();
+      const m  = String(dt.getMonth()+1).padStart(2, '0');
+      const d  = String(dt.getDate()).padStart(2, '0');
+      const hh = String(dt.getHours()).padStart(2, '0');
+      const mm = String(dt.getMinutes()).padStart(2, '0');
+      return `${d}/${m}/${y} ${hh}:${mm}`;
     }
   %>
 
   <h1>Organiser Edit Event Page</h1>
 
   <% if (event.created_at) { %>
-    <p>Created on: <%= formatDate(event.created_at.split(' ')[0]) %></p>
+    <p><strong>Created on:</strong> <%= formatDateTime(event.created_at) %></p>
   <% } %>
 
   <form action="/organiser/events/<%= event.id %>/edit" method="POST">
+
     <!-- Title -->
     <div style="margin-bottom:1rem;">
       <label for="title" style="font-weight:bold; display:block; margin-bottom:0.5rem;">
@@ -51,15 +57,11 @@
       ><%= event.description %></textarea>
     </div>
 
-    <!-- Event Date Picker -->
+    <!-- Event Date -->
     <div style="margin-bottom:1.5rem;">
-      <label style="font-weight:bold; display:block; margin-bottom:0.25rem;">
-        Event Date (DD/MM/YYYY):
+      <label for="event_date" style="font-weight:bold; display:block; margin-bottom:0.5rem;">
+        Event Date (DD/MM/YYYY)
       </label>
-      <!-- Show formatted date -->
-      <p style="margin-left:1rem; margin-top:0; margin-bottom:0.5rem;">
-        <%= formatDate(event.date) %>
-      </p>
       <input
         id="event_date"
         name="event_date"
@@ -78,7 +80,9 @@
       </label>
       <div style="display:flex; gap:1rem; margin-left:1rem;">
         <div>
-          <label for="full_qty">Quantity</label><br/>
+          <label for="full_qty" style="display:block; margin-bottom:0.25rem;">
+            Quantity
+          </label>
           <input
             id="full_qty"
             name="full_qty"
@@ -90,7 +94,9 @@
           />
         </div>
         <div>
-          <label for="full_price">Price Each</label><br/>
+          <label for="full_price" style="display:block; margin-bottom:0.25rem;">
+            Price Each
+          </label>
           <input
             id="full_price"
             name="full_price"
@@ -112,7 +118,9 @@
       </label>
       <div style="display:flex; gap:1rem; margin-left:1rem;">
         <div>
-          <label for="conc_qty">Quantity</label><br/>
+          <label for="conc_qty" style="display:block; margin-bottom:0.25rem;">
+            Quantity
+          </label>
           <input
             id="conc_qty"
             name="conc_qty"
@@ -124,7 +132,9 @@
           />
         </div>
         <div>
-          <label for="conc_price">Price Each</label><br/>
+          <label for="conc_price" style="display:block; margin-bottom:0.25rem;">
+            Price Each
+          </label>
           <input
             id="conc_price"
             name="conc_price"
@@ -139,6 +149,7 @@
       </div>
     </div>
 
+    <!-- Submit -->
     <button type="submit">Save Event</button>
   </form>
 

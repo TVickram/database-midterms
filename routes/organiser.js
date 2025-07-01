@@ -43,14 +43,18 @@ router.get('/', (req, res, next) => {
 
           const enriched = events.map(ev => {
             const b = map[ev.event_id] || { booked_full: 0, booked_conc: 0 };
+            const totalQty = ev.tickets_full + ev.tickets_concession;
+            const soldTotal = b.booked_full + b.booked_conc;
             return {
               id:           ev.event_id,
               title:        ev.title,
               date:         ev.event_date,
               full_qty:     ev.tickets_full,
               conc_qty:     ev.tickets_concession,
-              full_left:    ev.tickets_full - b.booked_full,
-              conc_left:    ev.tickets_concession - b.booked_conc,
+              total_qty:    totalQty,
+              sold_full:    b.booked_full,
+              sold_conc:    b.booked_conc,
+              sold_total:   soldTotal,
               created_at:   ev.created_at,
               published_at: ev.published_at
             };
@@ -69,7 +73,6 @@ router.get('/', (req, res, next) => {
 
 // ----------------------------------------------------------------------------
 // GET /organiser/settings
-//    Show the site-settings form
 // ----------------------------------------------------------------------------
 router.get('/settings', (req, res, next) => {
   getSiteSettings((err, row) => {
@@ -83,7 +86,6 @@ router.get('/settings', (req, res, next) => {
 
 // ----------------------------------------------------------------------------
 // POST /organiser/settings
-//    Save site name & description (update or insert)
 // ----------------------------------------------------------------------------
 router.post('/settings', (req, res, next) => {
   const { site_name, site_description } = req.body;
@@ -94,7 +96,7 @@ router.post('/settings', (req, res, next) => {
     function(err) {
       if (err) return next(err);
       if (this.changes === 0) {
-        // no row updated → insert new
+        // Insert if none existed
         global.db.run(
           `INSERT INTO site_settings (site_name, site_description) VALUES (?,?)`,
           [site_name, site_description],
@@ -114,8 +116,13 @@ router.post('/settings', (req, res, next) => {
 router.post('/events/new', (req, res, next) => {
   global.db.run(
     `INSERT INTO events
-       (title, description, event_date, tickets_full, price_full, tickets_concession, price_concession)
-     VALUES ('Untitled','',date('now'),0,0,0,0)`,
+       (title, description, event_date,
+        tickets_full, price_full,
+        tickets_concession, price_concession)
+     VALUES
+       ('Untitled','', date('now'),
+        0,0,
+        0,0)`,
     function(err) {
       if (err) return next(err);
       res.redirect(`/organiser/events/${this.lastID}/edit`);
@@ -125,7 +132,7 @@ router.post('/events/new', (req, res, next) => {
 
 // ----------------------------------------------------------------------------
 // GET /organiser/events/:id/edit
-//    Show edit form for a draft event
+//    Show the edit form for a draft event
 // ----------------------------------------------------------------------------
 router.get('/events/:id/edit', (req, res, next) => {
   const id = req.params.id;
@@ -161,7 +168,7 @@ router.get('/events/:id/edit', (req, res, next) => {
 
 // ----------------------------------------------------------------------------
 // POST /organiser/events/:id/edit
-//    Save edits & redirect to dashboard
+//    Save changes and return to dashboard
 // ----------------------------------------------------------------------------
 router.post('/events/:id/edit', (req, res, next) => {
   const { title, description, event_date, full_qty, full_price, conc_qty, conc_price } = req.body;
@@ -183,7 +190,7 @@ router.post('/events/:id/edit', (req, res, next) => {
 
 // ----------------------------------------------------------------------------
 // POST /organiser/events/:id/publish
-//    Publish a draft (set published_at)
+//    Mark draft as published
 // ----------------------------------------------------------------------------
 router.post('/events/:id/publish', (req, res, next) => {
   global.db.run(
