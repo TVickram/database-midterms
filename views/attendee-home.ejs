@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Attendee Home</title>
+  <link rel="stylesheet" href="/main.css" />
+</head>
+<body>
+  <%  
+    // Helper to format YYYY-MM-DD → DD/MM/YYYY  
+    function formatDate(iso) {
+      const [y, m, d] = iso.split('-');
+      return `${d}/${m}/${y}`;
+    }
+  %>
+
+  <header>
+    <h1><%= siteSettings.name %></h1>
+    <p><%= siteSettings.description %></p>
+  </header>
+
+  <h2>Upcoming Events</h2>
+  <ul>
+    <% if (events.length === 0) { %>
+      <li>No events currently available.</li>
+    <% } %>
+    <% events.forEach(ev => { %>
+      <li>
+        <a href="/attendee/events/<%= ev.id %>">
+          <strong><%= ev.title %></strong> — <%= formatDate(ev.date) %>
+        </a><br/>
+        Full-price: $<%= ev.price_full.toFixed(2) %>, Left: <%= ev.full_remaining %><br/>
+        Concession: $<%= ev.price_concession.toFixed(2) %>, Left: <%= ev.conc_remaining %>
+      </li>
+    <% }) %>
+  </ul>
+</body>
+</html>

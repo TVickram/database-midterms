@@ -1,35 +1,42 @@
-
--- This makes sure that foreign_key constraints are observed and that errors will be thrown for violations
-PRAGMA foreign_keys=ON;
+-- Enable foreign key constraints
+PRAGMA foreign_keys = ON;
 BEGIN TRANSACTION;
 
--- Create your tables with SQL commands here (watch out for slight syntactical differences with SQLite vs MySQL)
-
-
---beow is the code given by the template--
-CREATE TABLE IF NOT EXISTS users (
-    user_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_name TEXT NOT NULL
+-- Table: site_settings
+CREATE TABLE IF NOT EXISTS site_settings (
+    setting_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    site_name TEXT NOT NULL,
+    site_description TEXT NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS email_accounts (
-    email_account_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    email_address TEXT NOT NULL,
-    user_id  INT, --the user that the email account belongs to
-    FOREIGN KEY (user_id) REFERENCES users(user_id)
+-- Insert default site settings
+INSERT INTO site_settings (site_name, site_description)
+VALUES ('My Event Manager', 'Description of your event manager');
+
+-- Table: events
+CREATE TABLE IF NOT EXISTS events (
+    event_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    event_date TEXT NOT NULL, -- ISO8601 date string
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    last_modified TEXT NOT NULL DEFAULT (datetime('now')),
+    published_at TEXT,
+    tickets_full INTEGER NOT NULL CHECK (tickets_full >= 0),
+    price_full REAL NOT NULL CHECK (price_full >= 0),
+    tickets_concession INTEGER NOT NULL CHECK (tickets_concession >= 0),
+    price_concession REAL NOT NULL CHECK (price_concession >= 0)
 );
 
--- Insert default data (if necessary here)
-
--- Set up three users
-INSERT INTO users ('user_name') VALUES ('Simon Star');
-INSERT INTO users ('user_name') VALUES ('Dianne Dean');
-INSERT INTO users ('user_name') VALUES ('Harry Hilbert');
-
--- Give Simon two email addresses and Diane one, but Harry has none
-INSERT INTO email_accounts ('email_address', 'user_id') VALUES ('simon@gmail.com', 1); 
-INSERT INTO email_accounts ('email_address', 'user_id') VALUES ('simon@hotmail.com', 1); 
-INSERT INTO email_accounts ('email_address', 'user_id') VALUES ('dianne@yahoo.co.uk', 2); 
+-- Table: bookings
+CREATE TABLE IF NOT EXISTS bookings (
+    booking_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    event_id INTEGER NOT NULL,
+    attendee_name TEXT NOT NULL,
+    tickets_full INTEGER NOT NULL DEFAULT 0 CHECK (tickets_full >= 0),
+    tickets_concession INTEGER NOT NULL DEFAULT 0 CHECK (tickets_concession >= 0),
+    booked_at TEXT NOT NULL DEFAULT (datetime('now')),
+    FOREIGN KEY (event_id) REFERENCES events (event_id) ON DELETE CASCADE
+);
 
 COMMIT;
-

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Organiser Edit Event</title>
+  <link rel="stylesheet" href="/main.css" />
+</head>
+<body>
+  <%  
+    // Helper: format YYYY-MM-DD → DD/MM/YYYY  
+    function formatDate(iso) {
+      const [y,m,d] = iso.split('-');
+      return `${d}/${m}/${y}`;
+    }
+  %>
+
+  <h1>Organiser Edit Event Page</h1>
+
+  <% if (event.created_at) { %>
+    <p>Created on: <%= formatDate(event.created_at.split(' ')[0]) %></p>
+  <% } %>
+
+  <form action="/organiser/events/<%= event.id %>/edit" method="POST">
+    <!-- Title -->
+    <div style="margin-bottom:1rem;">
+      <label for="title" style="font-weight:bold; display:block; margin-bottom:0.5rem;">
+        Title
+      </label>
+      <input
+        id="title"
+        name="title"
+        type="text"
+        value="<%= event.title %>"
+        required
+        style="width:100%; max-width:400px; margin-left:1rem;"
+      />
+    </div>
+
+    <!-- Description -->
+    <div style="margin-bottom:1rem;">
+      <label for="description" style="font-weight:bold; display:block; margin-bottom:0.5rem;">
+        Description
+      </label>
+      <textarea
+        id="description"
+        name="description"
+        rows="4"
+        required
+        style="width:100%; max-width:600px; margin-left:1rem;"
+      ><%= event.description %></textarea>
+    </div>
+
+    <!-- Event Date Picker -->
+    <div style="margin-bottom:1.5rem;">
+      <label style="font-weight:bold; display:block; margin-bottom:0.25rem;">
+        Event Date (DD/MM/YYYY):
+      </label>
+      <!-- Show formatted date -->
+      <p style="margin-left:1rem; margin-top:0; margin-bottom:0.5rem;">
+        <%= formatDate(event.date) %>
+      </p>
+      <input
+        id="event_date"
+        name="event_date"
+        type="date"
+        value="<%= event.date %>"
+        min="<%= new Date().toISOString().split('T')[0] %>"
+        required
+        style="margin-left:1rem;"
+      />
+    </div>
+
+    <!-- Full-price Tickets -->
+    <div style="margin-bottom:1.5rem;">
+      <label style="font-weight:bold; display:block; margin-bottom:0.5rem;">
+        Full-price Tickets
+      </label>
+      <div style="display:flex; gap:1rem; margin-left:1rem;">
+        <div>
+          <label for="full_qty">Quantity</label><br/>
+          <input
+            id="full_qty"
+            name="full_qty"
+            type="number"
+            min="0"
+            value="<%= event.full_qty %>"
+            required
+            style="width:100px;"
+          />
+        </div>
+        <div>
+          <label for="full_price">Price Each</label><br/>
+          <input
+            id="full_price"
+            name="full_price"
+            type="number"
+            step="0.01"
+            min="0"
+            value="<%= event.full_price %>"
+            required
+            style="width:100px;"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Concession Tickets -->
+    <div style="margin-bottom:1.5rem;">
+      <label style="font-weight:bold; display:block; margin-bottom:0.5rem;">
+        Concession Tickets
+      </label>
+      <div style="display:flex; gap:1rem; margin-left:1rem;">
+        <div>
+          <label for="conc_qty">Quantity</label><br/>
+          <input
+            id="conc_qty"
+            name="conc_qty"
+            type="number"
+            min="0"
+            value="<%= event.conc_qty %>"
+            required
+            style="width:100px;"
+          />
+        </div>
+        <div>
+          <label for="conc_price">Price Each</label><br/>
+          <input
+            id="conc_price"
+            name="conc_price"
+            type="number"
+            step="0.01"
+            min="0"
+            value="<%= event.conc_price %>"
+            required
+            style="width:100px;"
+          />
+        </div>
+      </div>
+    </div>
+
+    <button type="submit">Save Event</button>
+  </form>
+
+  <p><a href="/organiser">← Back to Organiser Home</a></p>
+</body>
+</html>

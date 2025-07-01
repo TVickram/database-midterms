@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= event.title %></title>
+  <link rel="stylesheet" href="/main.css" />
+</head>
+<body>
+  <%  
+    // Helper to format YYYY-MM-DD → DD/MM/YYYY  
+    function formatDate(iso) {
+      const [y, m, d] = iso.split('-');
+      return `${d}/${m}/${y}`;
+    }
+  %>
+
+  <header>
+    <h1><%= event.title %></h1>
+    <p><%= event.description %></p>
+    <p><strong>Date:</strong> <%= formatDate(event.date) %></p>
+  </header>
+
+  <section>
+    <h2>Ticket Prices & Availability</h2>
+    <p>
+      Full-price: $<%= event.price_full.toFixed(2) %>,
+      Remaining: <%= event.full_remaining %>
+    </p>
+    <p>
+      Concession: $<%= event.price_concession.toFixed(2) %>,
+      Remaining: <%= event.conc_remaining %>
+    </p>
+  </section>
+
+  <section>
+    <h2>Book Now</h2>
+    <form action="/attendee/events/<%= event.id %>/book" method="POST">
+      <label>Your Name:<br/>
+        <input name="attendee_name" required />
+      </label><br/>
+
+      <label>Full-price tickets (max <%= event.full_remaining %>):<br/>
+        <input name="full_tickets" type="number" min="0"
+               max="<%= event.full_remaining %>" value="0" />
+      </label><br/>
+
+      <label>Concession tickets (max <%= event.conc_remaining %>):<br/>
+        <input name="conc_tickets" type="number" min="0"
+               max="<%= event.conc_remaining %>" value="0" />
+      </label><br/>
+
+      <button type="submit">Book Tickets</button>
+    </form>
+  </section>
+
+  <p><a href="/attendee">← Back to events list</a></p>
+</body>
+</html>

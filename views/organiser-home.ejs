@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Organiser Dashboard</title>
+  <link rel="stylesheet" href="/main.css" />
+</head>
+<body>
+  <%  
+    // Helper to format YYYY-MM-DD → DD/MM/YYYY  
+    function formatDate(iso) {
+      const [y, m, d] = iso.split('-');
+      return `${d}/${m}/${y}`;
+    }
+  %>
+
+  <!-- Header with Site Settings link and New Event button -->
+  <header>
+    <h1><%= siteSettings.name %></h1>
+    <p><%= siteSettings.description %></p>
+    <nav>
+      <a href="/organiser/settings">Site Settings</a>
+      <form action="/organiser/events/new" method="POST" style="display:inline; margin-left:1rem;">
+        <button type="submit">Create New Event</button>
+      </form>
+    </nav>
+  </header>
+
+  <!-- Published Events -->
+  <section>
+    <h2>Published Events</h2>
+    <ul>
+      <% publishedEvents.forEach(ev => { %>
+        <li>
+          <strong><%= ev.title %></strong> on <%= formatDate(ev.date) %><br/>
+          Full-price left: <%= ev.full_left %>, Concession left: <%= ev.conc_left %><br/>
+          Created: <%= formatDate(ev.created_at.split(' ')[0]) %><br/>
+          Published: <%= formatDate(ev.published_at.split(' ')[0]) %><br/>
+
+          <!-- Link to attendee view -->
+          <a href="/attendee/events/<%= ev.id %>" target="_blank">View as Attendee</a>
+          
+          <!-- Edit & Delete for published events -->
+          <a href="/organiser/events/<%= ev.id %>/edit" style="margin-left:1rem;">Edit</a>
+          <form action="/organiser/events/<%= ev.id %>/delete" method="POST" style="display:inline; margin-left:1rem;">
+            <button type="submit">Delete</button>
+          </form>
+        </li>
+      <% }) %>
+      <% if (publishedEvents.length === 0) { %>
+        <li>No published events yet.</li>
+      <% } %>
+    </ul>
+  </section>
+
+  <!-- Draft Events -->
+  <section>
+    <h2>Draft Events</h2>
+    <ul>
+      <% draftEvents.forEach(ev => { %>
+        <li>
+          <strong><%= ev.title || 'Untitled' %></strong> on <%= formatDate(ev.date) %><br/>
+          Full-price left: <%= ev.full_left %>, Concession left: <%= ev.conc_left %><br/>
+          Created: <%= formatDate(ev.created_at.split(' ')[0]) %><br/>
+
+          <!-- Link to attendee view (draft) -->
+          <a href="/attendee/events/<%= ev.id %>" target="_blank">View as Attendee</a>
+          
+          <!-- Edit, Publish & Delete for drafts -->
+          <a href="/organiser/events/<%= ev.id %>/edit" style="margin-left:1rem;">Edit</a>
+          <form action="/organiser/events/<%= ev.id %>/publish" method="POST" style="display:inline; margin-left:1rem;">
+            <button type="submit">Publish</button>
+          </form>
+          <form action="/organiser/events/<%= ev.id %>/delete" method="POST" style="display:inline; margin-left:1rem;">
+            <button type="submit">Delete</button>
+          </form>
+        </li>
+      <% }) %>
+      <% if (draftEvents.length === 0) { %>
+        <li>No drafts available.</li>
+      <% } %>
+    </ul>
+  </section>
+</body>
+</html>

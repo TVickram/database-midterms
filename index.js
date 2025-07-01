@@ -1,42 +1,62 @@
-/**
-* index.js
-* This is your main app entry point
-*/
+// index.js
+// Main entry point for the Event Manager application
 
-// Set up express, bodyparser and EJS
-const express = require('express');
-const app = express();
-const port = 3000;
-var bodyParser = require("body-parser");
-app.use(bodyParser.urlencoded({ extended: true }));
-app.set('view engine', 'ejs'); // set the app to use ejs for rendering
-app.use(express.static(__dirname + '/public')); // set location of static files
+// 1. Load core dependencies
+const express = require('express');             // Fast, unopinionated web framework
+const path    = require('path');                // Utilities for working with file and directory paths
+const sqlite3 = require('sqlite3').verbose();   // SQLite driver with verbose debugging output
 
-// Set up SQLite
-// Items in the global namespace are accessible throught out the node application
-const sqlite3 = require('sqlite3').verbose();
-global.db = new sqlite3.Database('./database.db',function(err){
-    if(err){
-        console.error(err);
-        process.exit(1); // bail out we can't connect to the DB
-    } else {
-        console.log("Database connected");
-        global.db.run("PRAGMA foreign_keys=ON"); // tell SQLite to pay attention to foreign key constraints
+// 2. Create & configure the Express application
+const app  = express();
+const port = process.env.PORT || 3000;
+
+// 3. Middleware setup
+app.use(express.urlencoded({ extended: false })); // Parse URL-encoded request bodies (HTML forms)
+app.use(express.json());                          // Parse JSON request bodies
+
+// 4. View engine configuration
+app.set('views', path.join(__dirname, 'views'));  // Directory for EJS templates
+app.set('view engine', 'ejs');                    // Use EJS as templating language
+
+// 5. Static assets
+app.use(express.static(path.join(__dirname, 'public'))); // Serve CSS, JS, images from /public
+
+// 6. Initialize SQLite database connection
+global.db = new sqlite3.Database(
+  path.join(__dirname, 'database.db'), // Path to your SQLite file
+  (err) => {
+    if (err) {
+      console.error('❌ Failed to connect to database:', err.message);
+      process.exit(1); // Terminate the app if DB connection fails
     }
+    console.log('✅ Connected to SQLite database');
+  }
+);
+
+// 7. Route handlers
+const indexRoutes     = require('./routes/index');     // GET /
+const usersRoutes     = require('./routes/users');     // GET /users/*
+const organiserRoutes = require('./routes/organiser'); // GET/POST /organiser/*
+const attendeeRoutes  = require('./routes/attendee');  // GET /attendee/*
+
+// 8. Mount routes on their respective base paths
+app.use('/',       indexRoutes);
+app.use('/users',  usersRoutes);
+app.use('/organiser', organiserRoutes);
+app.use('/attendee',  attendeeRoutes);
+
+// 9. 404 handler — catch-all for unknown routes
+app.use((req, res) => {
+  res.status(404).send('🚧 Page not found');
 });
 
-// Handle requests to the home page 
-app.get('/', (req, res) => {
-    res.send('Hello World!')
+// 10. Global error handler — logs and returns 500
+app.use((err, req, res, next) => {
+  console.error('🔥 Server error:', err.stack);
+  res.status(500).send('💥 Internal Server Error');
 });
 
-// Add all the route handlers in usersRoutes to the app under the path /users
-const usersRoutes = require('./routes/users');
-app.use('/users', usersRoutes);
-
-
-// Make the web application listen for HTTP requests
+// 11. Start the HTTP server
 app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`)
-})
-
+  console.log(`🚀 Event Manager app listening at http://localhost:${port}`);
+});
