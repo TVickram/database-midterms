@@ -5,78 +5,130 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title><%= siteSettings.name %> • Welcome</title>
 
-  <!-- Bootstrap CSS -->
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+
+  <!-- Bootstrap CSS & Icons -->
   <link href="/css/bootstrap.min.css" rel="stylesheet"/>
-  <!-- Bootstrap Icons -->
   <link href="/icons/bootstrap-icons.css" rel="stylesheet"/>
 
   <style>
     body { font-family: 'Poppins', sans-serif; background: #f0f2f5; }
+    .navbar { background: rgba(255,255,255,0.75)!important; backdrop-filter: blur(10px); }
     .hero {
       position: relative;
       background: url('/hero-bg.jpg') center/cover no-repeat;
-      color: #fff; padding:6rem 2rem; border-radius:1rem;
-      box-shadow:0 0.5rem 1rem rgba(0,0,0,0.15); margin:2rem auto; max-width:800px;
+      color: #fff; padding: 6rem 2rem; border-radius: 1rem;
+      box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15); margin-top: 2rem;
     }
     .hero::after { content:''; position:absolute; inset:0; background:rgba(0,0,0,0.4); border-radius:1rem; }
-    .hero * { position:relative; z-index:1; }
-    .btn-portal { min-width:180px; }
-    .feature-card { border:none; border-top:.4rem solid #0062E6; border-radius:.75rem; transition:.3s; }
-    .feature-card:hover { transform:translateY(-8px); box-shadow:0 .5rem 1rem rgba(0,0,0,0.15); }
-    .feature-icon { font-size:3rem; color:#0062E6; }
+    .hero-content { position:relative; z-index:1; }
+    .feature-card {
+      border: none;
+      border-top: 0.4rem solid #0062E6;
+      border-radius: 0.75rem;
+      box-shadow: 0 0.25rem 0.75rem rgba(0,0,0,0.1);
+      transition: transform 0.3s, box-shadow 0.3s;
+      text-decoration: none;
+      color: inherit;
+    }
+    .feature-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+    }
+    .feature-icon { font-size: 3rem; color: #0062E6; }
+    .btn-portal-primary {
+      background: linear-gradient(135deg,#009FFF,#ec2F4B);
+      border: none;
+    }
+    .btn-portal-secondary {
+      background: transparent;
+      border: 2px solid #fff;
+      color: #fff;
+    }
   </style>
 </head>
-<body class="bg-light">
-  <!-- Header -->
-  <%- include('partials/header', { siteSettings }) %>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center" href="/">
+        <i class="bi bi-calendar-event-fill me-2"></i>
+        <strong><%= siteSettings.name %></strong>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+              data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link text-dark" href="/attendee">
+              <i class="bi bi-people-fill me-1"></i>Attendee
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-dark" href="/login">
+              <i class="bi bi-person-lock-fill me-1"></i>Organiser
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
 
   <!-- Hero -->
-  <main class="container text-center">
-    <section class="hero">
+  <main class="container">
+    <section class="hero text-center mx-auto hero-content">
       <i class="bi bi-calendar-event-fill display-1 mb-3"></i>
       <h1 class="display-4 fw-bold"><%= siteSettings.name %></h1>
       <p class="lead mb-4"><%= siteSettings.description %></p>
     </section>
 
     <!-- Portal Cards -->
-    <section class="row g-4 my-5">
-      <div class="col-md-6">
-        <a href="/organiser" class="card feature-card p-4 h-100 text-center text-decoration-none text-dark">
-          <i class="bi bi-person-lock-fill feature-icon mb-3"></i>
-          <h4>Organiser Portal</h4>
-          <p class="text-muted">Log in to create, edit, and manage your events.</p>
-        </a>
-      </div>
-      <div class="col-md-6">
-        <a href="/attendee" class="card feature-card p-4 h-100 text-center text-decoration-none text-dark">
-          <i class="bi bi-people-fill feature-icon mb-3"></i>
-          <h4>Attendee Portal</h4>
-          <p class="text-muted">Browse events and book tickets seamlessly.</p>
-        </a>
+    <section class="mt-5">
+      <div class="row g-4">
+        <div class="col-md-6">
+          <a href="/login" class="card feature-card p-4 h-100 text-center">
+            <i class="bi bi-person-lock-fill feature-icon mb-3"></i>
+            <h4 class="fw-semibold">Organiser Portal</h4>
+            <p class="text-muted">Log in to manage your events and site settings.</p>
+          </a>
+        </div>
+        <div class="col-md-6">
+          <a href="/attendee" class="card feature-card p-4 h-100 text-center">
+            <i class="bi bi-people-fill feature-icon mb-3"></i>
+            <h4 class="fw-semibold">Attendee Portal</h4>
+            <p class="text-muted">Browse events and book tickets seamlessly.</p>
+          </a>
+        </div>
       </div>
     </section>
 
     <!-- Features -->
-    <section class="row g-4 mb-5">
-      <div class="col-md-4">
-        <div class="card feature-card text-center p-4 h-100">
-          <i class="bi bi-calendar-plus-fill feature-icon mb-3"></i>
-          <h5>Create &amp; Manage Events</h5>
-          <p class="text-muted">Organisers can handle all aspects of their events.</p>
+    <section class="mt-5">
+      <div class="row g-4">
+        <div class="col-md-4">
+          <a href="/login" class="card feature-card text-center p-4 h-100">
+            <i class="bi bi-calendar-plus-fill feature-icon mb-3"></i>
+            <h5>Create &amp; Manage Events</h5>
+            <p class="text-muted">Organisers create and attendees explore & book.</p>
+          </a>
         </div>
-      </div>
-      <div class="col-md-4">
-        <div class="card feature-card text-center p-4 h-100">
-          <i class="bi bi-ticket-perforated feature-icon mb-3"></i>
-          <h5>Book Tickets</h5>
-          <p class="text-muted">Attendees can reserve spots with ease.</p>
+        <div class="col-md-4">
+          <a href="/attendee" class="card feature-card text-center p-4 h-100">
+            <i class="bi bi-ticket-perforated feature-icon mb-3"></i>
+            <h5>Book Tickets</h5>
+            <p class="text-muted">Attendees can reserve spots in a few clicks.</p>
+          </a>
         </div>
-      </div>
-      <div class="col-md-4">
-        <div class="card feature-card text-center p-4 h-100">
-          <i class="bi bi-people-check feature-icon mb-3"></i>
-          <h5>Track Attendees</h5>
-          <p class="text-muted">Get real-time insights on attendee lists.</p>
+        <div class="col-md-4">
+          <div class="card feature-card text-center p-4 h-100">
+            <i class="bi bi-people-check feature-icon mb-3"></i>
+            <h5>Track Attendees</h5>
+            <p class="text-muted">Organisers view booking details per event.</p>
+          </div>
         </div>
       </div>
     </section>
